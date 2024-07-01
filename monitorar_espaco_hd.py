@@ -70,24 +70,49 @@ def verificar_espaco_disco():
         logging.error(mensagem_erro)
         sys.exit(1)
 
-    # Obtém o uso de disco da partição principal
-    disco = psutil.disk_usage('/')
+    # Verifica se a chave "particoes" está presente no arquivo configuracoes.ini e não está vazia
+    if 'configuracoes' not in configuracoes or 'particoes' not in configuracoes['configuracoes'] or not configuracoes['configuracoes']['particoes'].strip():
+        mensagem_erro = 'O arquivo configuracoes.ini não contém a configuração válida para "particoes".'
+        exibir_notificacao('Erro de Configuração', mensagem_erro)
+        logging.error(mensagem_erro)
+        sys.exit(1)
 
-    # Converte o espaço livre de bytes para gigabytes
-    espaco_livre_gb = disco.free / (1024 ** 3)
+    # Obtém a lista de partições a serem monitoradas
+    particoes = configuracoes['configuracoes']['particoes'].split(',')
 
-    # Formata o espaço livre com duas casas decimais
-    espaco_livre_gb_formatado = f'{espaco_livre_gb:.2f}'
+    # Remove espaços em branco ao redor das letras das unidades
+    particoes = [particao.strip() for particao in particoes]
 
-    # Verifica se o espaço livre é menor que esperado
-    if espaco_livre_gb < espaco_livre_esperado_gb:
-        mensagem_alerta = f'Atenção: O espaço livre no HD é de apenas {espaco_livre_gb_formatado} GB, o que é menor que {espaco_livre_esperado_gb} GB (esperado).'
-        exibir_notificacao('Atenção: Espaço Insuficiente', mensagem_alerta)
-        logging.warning(mensagem_alerta)
-    else:
-        mensagem_info = f'O espaço livre no HD é de {espaco_livre_gb_formatado} GB, o que é suficiente.'
-        exibir_notificacao('Espaço Livre Suficiente', mensagem_info)
-        logging.info(mensagem_info)
+    # Itera sobre as partições e verifica o espaço livre
+    for particao in particoes:
+        if len(particao) == 1 and particao.isalpha():
+            try:
+                # Obtém o uso de disco da partição principal
+                disco = psutil.disk_usage(f'{particao.upper()}:\\')
+
+                # Converte o espaço livre de bytes para gigabytes
+                espaco_livre_gb = disco.free / (1024 ** 3)
+
+                # Formata o espaço livre com duas casas decimais
+                espaco_livre_gb_formatado = f'{espaco_livre_gb:.2f}'
+
+                # Verifica se o espaço livre é menor que esperado
+                if espaco_livre_gb < espaco_livre_esperado_gb:
+                    mensagem_alerta = f'Atenção: O espaço livre no HD é de apenas {espaco_livre_gb_formatado} GB, o que é menor que {espaco_livre_esperado_gb} GB (esperado).'
+                    exibir_notificacao('Atenção: Espaço Insuficiente', mensagem_alerta)
+                    logging.warning(mensagem_alerta)
+                else:
+                    mensagem_info = f'O espaço livre no HD é de {espaco_livre_gb_formatado} GB, o que é suficiente.'
+                    exibir_notificacao('Espaço Livre Suficiente', mensagem_info)
+                    logging.info(mensagem_info)
+            except FileNotFoundError:
+                mensagem_erro = f'A partição "{particao.upper()}:" especificada no arquivo configuracoes.ini não existe.'
+                exibir_notificacao('Erro de Configuração', mensagem_erro)
+                logging.error(mensagem_erro)
+        else:
+            mensagem_erro = f'A partição "{particao}" especificada no arquivo configuracoes.ini não é válida. Use apenas letras para representar unidades de disco.'
+            exibir_notificacao('Erro de Configuração', mensagem_erro)
+            logging.error(mensagem_erro)
 
 if __name__ == '__main__':
     verificar_espaco_disco()

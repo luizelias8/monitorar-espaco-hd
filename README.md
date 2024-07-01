@@ -29,7 +29,7 @@ pip install -r requirements.txt
 
 3. Configuração do Arquivo de Preferências:
 - Renomeie o arquivo `configuracoes-exemplo.ini` para `configuracoes.ini`.
-- Edite `configuracoes.ini` e defina `espaco_livre_esperado_gb` com o valor desejado em gigabytes.
+- Edite `configuracoes.ini` e defina `espaco_livre_esperado_gb` com o valor desejado em gigabytes. Defina `particoes` com as partições que deseja monitorar.
 
 ## Uso
 
