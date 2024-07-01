@@ -7,6 +7,7 @@ Este é um script em Python para monitorar o espaço livre no disco e exibir not
 - **Monitoramento Automático:** Verifica periodicamente o espaço livre no disco principal.
 - **Notificações no Windows:** Utiliza o módulo `winotify` para exibir notificações customizadas.
 - **Configurações Flexíveis:** As configurações, como o espaço livre esperado, são definidas no arquivo `configuracoes.ini`.
+- **Registro em Arquivo de Log:** Registra informações, avisos e erros em um arquivo de log (`espaco_disco.log`).
 
 ## Requisitos
 
@@ -33,6 +34,8 @@ pip install -r requirements.txt
 ## Uso
 
 Execute o script `monitorar_espaco_hd.py`. Ele irá verificar o espaço livre no disco e exibir notificações conforme configurado.
+
+Nota: O arquivo de log `espaco_disco.log` registra todas as operações e pode ser útil para diagnósticos e histórico.
 
 ## Contribuição
 

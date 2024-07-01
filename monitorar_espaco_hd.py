@@ -3,9 +3,22 @@ from configparser import ConfigParser
 import os
 import sys
 from winotify import Notification
+import logging
 
 # Obtém o diretório do script atual
 diretorio_script = os.path.dirname(__file__)
+
+# Caminho completo para o arquivo de log
+caminho_arquivo_log = os.path.join(diretorio_script, 'espaco_disco.log')
+
+# Configuração do logger
+logging.basicConfig(
+    filename=caminho_arquivo_log,
+    level=logging.INFO,
+    format='%(asctime)s - %(levelname)s - %(message)s',
+    datefmt='%d/%m/%Y %H:%M:%S',
+    encoding='utf-8'
+)
 
 # Função para exibir notificações no Windows
 def exibir_notificacao(titulo, mensagem):
@@ -34,10 +47,9 @@ def verificar_espaco_disco():
 
     # Verifica se o valor para espaco_livre_esperado_gb está presente no arquivo configuracoes.ini
     if 'configuracoes' not in configuracoes or 'espaco_livre_esperado_gb' not in configuracoes['configuracoes']:
-        exibir_notificacao(
-            'Erro de Configuração',
-            'O arquivo configuracoes.ini não contém a configuração "espaco_livre_esperado_gb".'
-        )
+        mensagem_erro = 'O arquivo configuracoes.ini não contém a configuração "espaco_livre_esperado_gb".'
+        exibir_notificacao('Erro de Configuração', mensagem_erro)
+        logging.error(mensagem_erro)
         sys.exit(1)
 
     # Obtém o valor de espaco_livre_esperado_gb do arquivo de configuração
@@ -45,19 +57,17 @@ def verificar_espaco_disco():
 
     # Verifica se o valor espaco_livre_esperado_gb não está vazio
     if not espaco_livre_esperado_gb_str.strip():
-        exibir_notificacao(
-            'Erro de Configuração',
-            'O valor de "espaco_livre_esperado_gb" no arquivo configuracoes.ini está vazio.'
-        )
+        mensagem_erro = 'O valor de "espaco_livre_esperado_gb" no arquivo configuracoes.ini está vazio.'
+        exibir_notificacao('Erro de Configuração', mensagem_erro)
+        logging.error(mensagem_erro)
         sys.exit(1)
 
     try:
         espaco_livre_esperado_gb = int(espaco_livre_esperado_gb_str)
     except ValueError:
-        exibir_notificacao(
-            'Erro de Configuração',
-            'O valor de "espaco_livre_esperado_gb" no arquivo configuracoes.ini não é um número inteiro válido.'
-        )
+        mensagem_erro = 'O valor de "espaco_livre_esperado_gb" no arquivo configuracoes.ini não é um número inteiro válido.'
+        exibir_notificacao('Erro de Configuração', mensagem_erro)
+        logging.error(mensagem_erro)
         sys.exit(1)
 
     # Obtém o uso de disco da partição principal
@@ -71,15 +81,13 @@ def verificar_espaco_disco():
 
     # Verifica se o espaço livre é menor que esperado
     if espaco_livre_gb < espaco_livre_esperado_gb:
-        exibir_notificacao(
-            'Atenção: Espaço Insuficiente',
-            f'Atenção: O espaço livre no HD é de apenas {espaco_livre_gb_formatado} GB, o que é menor que {espaco_livre_esperado_gb} GB (esperado).'
-        )
+        mensagem_alerta = f'Atenção: O espaço livre no HD é de apenas {espaco_livre_gb_formatado} GB, o que é menor que {espaco_livre_esperado_gb} GB (esperado).'
+        exibir_notificacao('Atenção: Espaço Insuficiente', mensagem_alerta)
+        logging.warning(mensagem_alerta)
     else:
-        exibir_notificacao(
-            'Espaço Livre Suficiente',
-            f'O espaço livre no HD é de {espaco_livre_gb_formatado} GB, o que é suficiente.'
-        )
+        mensagem_info = f'O espaço livre no HD é de {espaco_livre_gb_formatado} GB, o que é suficiente.'
+        exibir_notificacao('Espaço Livre Suficiente', mensagem_info)
+        logging.info(mensagem_info)
 
 if __name__ == '__main__':
     verificar_espaco_disco()
