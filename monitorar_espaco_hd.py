@@ -3,6 +3,8 @@ from configparser import ConfigParser
 import os
 import sys
 from winotify import Notification
+import schedule
+import time
 
 # Obtém o diretório do script atual
 diretorio_script = os.path.dirname(__file__)
@@ -82,4 +84,10 @@ def verificar_espaco_disco():
         )
 
 if __name__ == '__main__':
-    verificar_espaco_disco()
+    # Agendamento da tarefa para ser executada a cada 1 minuto
+    schedule.every(1).minutes.do(verificar_espaco_disco)
+
+    # Loop para executar as tarefas agendadas
+    while True:
+        schedule.run_pending()
+        time.sleep(1)
